@@ -6,5 +6,5 @@ RUN apk add git openssh-client
 COPY . .
 RUN npm install
 
-CMD [ "node", "kongql-server.js" ]
+CMD [ "node", "src/kongql-server.js" ]
 
