@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-SWAGGER_TO_GQL="node_modules/swagger-to-graphql/bin/swagger2graphql"
+SCRIPT=`realpath $0`
+SCRIPTPATH=`dirname $SCRIPT`
+SWAGGER_TO_GQL="$SCRIPTPATH/../node_modules/swagger-to-graphql/bin/swagger2graphql"
+SERVER_PATH="$SCRIPTPATH/../src"
 SWAGGER_PATH=""
 
 function parse_args() {
@@ -50,7 +53,7 @@ function start_server() {
 
   if is_swagger_file_valid == 0; then
     upload_swagger_file
-    nohup sh -c "node kongql-server.js" & > logs.log
+    nohup sh -c "node $SERVER_PATH/kongql-server.js" & > logs.log
   else
     echo "error occured cannot start the server..."
     exit 1
@@ -58,11 +61,11 @@ function start_server() {
 }
 
 function is_server_running() {
-  [ $(ps -ef | grep 'node kongql-server.js' | awk '{print $2}' | wc -l) -gt 1 ] && echo 0 || echo 1
+  [ $(ps -ef | grep "node $SERVER_PATH/kongql-server.js" | awk '{print $2}' | wc -l) -gt 1 ] && echo 0 || echo 1
 }
 
 function stop_server() {
-  ps -ef | grep 'node kongql-server.js' | awk '{print $2}' | xargs kill
+  ps -ef | grep "node $SERVER_PATH/kongql-server.js" | awk '{print $2}' | xargs kill
 }
 
 function server_status() {
