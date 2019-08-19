@@ -65,7 +65,7 @@ docker run -it -d \
 -p 3009:3009 \
 -t kong-graphql-server:0.1
 
-# Now you can access a GraphQL Playground on http://localhost:3010/graphql
+# Now you can access a GraphQL Playground on http://localhost:3009/graphql
 ```
 
 ## Configuration Parameters
