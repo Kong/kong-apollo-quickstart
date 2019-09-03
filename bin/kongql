@@ -8,6 +8,12 @@ SWAGGER_TO_GQL="${SCRIPT_PATH}/../node_modules/.bin/swagger-to-graphql"
 KONG_GQL_SERVER="${SCRIPT_PATH}/../src/kongql-server.js"
 
 GRAPHQL_SWAGGER_URL=${GRAPHQL_SWAGGER_URL:-https://petstore.swagger.io/v2/swagger.json}
+KONG_CONF_PATH=${KONG_CONF_PATH:-/etc/kong/kong.conf.default}
+KONG_DECLARATIVE_CONFIG=${KONG_DECLARATIVE_CONFIG:-}
+
+unset DOCKER_START
+
+
 function parse_args() {
   ACTION=$1
   shift
@@ -16,6 +22,15 @@ function parse_args() {
     case "$1" in
       --swagger)
         GRAPHQL_SWAGGER_URL=$2
+        ;;
+      --kong-yml)
+        KONG_DECLARATIVE_CONFIG=$2
+        ;;
+      --kong-conf)
+        KONG_CONF_PATH=$2
+        ;;
+      --docker)
+        DOCKER_START=1
         ;;
       *)
         ;;
@@ -36,6 +51,8 @@ cat << EOF
 
   Options:
     --swagger   URL or PATH of swagger file
+    --kong-yml  PATH to kong.yml
+    --kong-conf PATH to kong.conf
 
 EOF
 }
@@ -82,6 +99,13 @@ function main() {
         echo "starting the server..."
         start_server
         echo "server is running"
+        # Kong Dockerfile starts kong in a specific way and a couple of
+        # workarounds.
+        if [[ -n ${DOCKER_START} ]]; then
+          exec /docker-entrypoint.sh kong docker-start -c "${KONG_CONF_PATH}"
+        else
+          exec kong start -c "${KONG_CONF_PATH}"
+        fi
       ;;
     stop)
         echo "stopping the server..."
