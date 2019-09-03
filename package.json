@@ -12,6 +12,6 @@
     "express": "^4.15.3",
     "express-graphql": "^0.9.0",
     "graphql": "^14.4.1",
-    "swagger-to-graphql": "yarax/swagger-to-graphql#master"
+    "swagger-to-graphql": "^2.1.0"
   }
 }
