@@ -1,0 +1,31 @@
+# ------------------------------------------------------------------------------
+# This is an example file to get you started with using
+# declarative configuration in Kong.
+# ------------------------------------------------------------------------------
+
+# Metadata fields start with an underscore (_)
+# Fields that do not start with an underscore represent Kong entities and attributes
+
+# _format_version is mandatory,
+# it specifies the minimum version of Kong that supports the format
+
+_format_version: "1.1"
+
+services:
+ - name: graphql
+   url: http://localhost:3009/graphql
+   routes:
+    - name: graphql
+      paths:
+        - /graphql
+
+# Some example graphql plugins that are installed and can be enabled on
+# this kong
+# ...
+# plugins:
+# - name: gql-rate-limiting
+#   service: graphql
+#   _comment: "some rate limiting config"
+#   TODO
+#   config:
+#     hour: 2
