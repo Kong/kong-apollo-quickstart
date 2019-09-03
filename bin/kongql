@@ -1,22 +1,27 @@
 #!/usr/bin/env bash
-SCRIPT=`realpath $0`
-SCRIPTPATH=`dirname $SCRIPT`
-SWAGGER_TO_GQL="$SCRIPTPATH/../node_modules/swagger-to-graphql/bin/swagger2graphql"
-SERVER_PATH="$SCRIPTPATH/../src"
-SWAGGER_PATH=""
 
+SCRIPT=$(realpath "$0")
+SCRIPT_PATH=$(dirname "$SCRIPT")
+PID_PATH="${SCRIPT_PATH}/.pid"
+LOG_PATH="${SCRIPT_PATH}/run.log"
+SWAGGER_TO_GQL="${SCRIPT_PATH}/../node_modules/.bin/swagger-to-graphql"
+KONG_GQL_SERVER="${SCRIPT_PATH}/../src/kongql-server.js"
+
+GRAPHQL_SWAGGER_URL=${GRAPHQL_SWAGGER_URL:-https://petstore.swagger.io/v2/swagger.json}
 function parse_args() {
   ACTION=$1
-  shift 
-
-  case "$1" in
-    --swagger)
-        SWAGGER_PATH=$2
-      ;;
-    *)
-      ;;
-  esac
   shift
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --swagger)
+        GRAPHQL_SWAGGER_URL=$2
+        ;;
+      *)
+        ;;
+    esac
+    shift
+  done
 }
 
 function instructions() {
@@ -36,48 +41,41 @@ EOF
 }
 
 function is_swagger_file_valid() {
-  $SWAGGER_TO_GQL --swagger=$SWAGGER_PATH > /dev/null
-  exit_code=$?
-  return $exit_code
+  "$SWAGGER_TO_GQL" "--swagger=${GRAPHQL_SWAGGER_URL}" > /dev/null
+  return $?
 }
 
-function upload_swagger_file() {
-  export GRAPHQL_SWAGGER_URL=$SWAGGER_PATH
-}
 
 function start_server() {
-  if [ $(is_server_running) -eq 0 ]; then
+  if is_server_running; then
     echo "server is already running"
     exit 0
   fi
 
-  if is_swagger_file_valid == 0; then
-    upload_swagger_file
-    nohup sh -c "node $SERVER_PATH/kongql-server.js" & > logs.log
+  if is_swagger_file_valid; then
+    export GRAPHQL_SWAGGER_URL
+    nohup "$KONG_GQL_SERVER" >> "${LOG_PATH}" &
+    echo "$!" > "$PID_PATH"
   else
     echo "error occured cannot start the server..."
+    cat "${LOG_PATH}"
     exit 1
   fi
 }
 
+
 function is_server_running() {
-  [ $(ps -ef | grep "node $SERVER_PATH/kongql-server.js" | awk '{print $2}' | wc -l) -gt 1 ] && echo 0 || echo 1
+  [[ -f "${PID_PATH}" ]] && [[ -n $(ps -p "$(cat "${PID_PATH}")") ]] && return 0
+  return 1
 }
 
 function stop_server() {
-  ps -ef | grep "node $SERVER_PATH/kongql-server.js" | awk '{print $2}' | xargs kill
+  [[ -f "${PID_PATH}" ]] && kill -9 "$(cat "${PID_PATH}")" && rm "${PID_PATH}"
 }
 
-function server_status() {
-  if [ $(is_server_running) -eq 0 ]; then
-    echo "server is running"
-  else
-    echo "server is not running"
-  fi
-}
 
 function main() {
-  parse_args $@
+  parse_args "$@"
 
   case $ACTION in
     start)
@@ -91,7 +89,11 @@ function main() {
         echo "server is stopped"
       ;;
     status)
-        server_status
+        if is_server_running; then
+          echo "server is running"
+        else
+          echo "server is not running"
+        fi
       ;;
     *)
       instructions
@@ -101,5 +103,4 @@ function main() {
 
 }
 
-main $*
-
+main "$@"
