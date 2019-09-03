@@ -6,6 +6,9 @@
   "scripts": {
     "start": "node server.js"
   },
+  "bin": {
+    "kongql-server": "src/kongql-server.js"
+  },
   "dependencies": {
     "apollo-server-express": "^2.8.1",
     "babel-polyfill": "^6.23.0",

@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const express = require('express');
 
 const app = express();
@@ -20,12 +22,12 @@ graphQLSchema(pathToSwaggerSchema, null, customHeaders)
       playground,
     });
     const app = express();
-    
+
     apollo.applyMiddleware({ app, path: serverPath });
-   
+
     app.listen({ port: serverPort }, () => {
       console.log(`🚀 Server ready at http://localhost:${serverPort}${serverPath}`);
-    }); 
+    });
   })
   .catch(e => {
     console.log(e);
