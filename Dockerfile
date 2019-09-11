@@ -1,11 +1,10 @@
 FROM kong:latest
 
-RUN apk add --update nodejs npm bash
+RUN apk add --update nodejs npm bash openssh git
 
 WORKDIR /kongql
 
 ADD package.json package.json
-ADD src src
 RUN npm install
 
 ADD bin bin
@@ -13,9 +12,8 @@ ADD bin bin
 # Can either be an url or a local file, ie:
 # ADD swagger.json swagger.json
 # ENV GRAPHQL_SWAGGER_URL="/usr/local/src/swagger.json"
-ENV GRAPHQL_SWAGGER_URL="https://petstore.swagger.io/v2/swagger.json"
+ENV OAS_URI="https://petstore.swagger.io/v2/swagger.json"
 ENV GRAPHQL_SERVER_PORT="3009"
-ENV GRAPHQL_PLAYGROUND="true"
 
 EXPOSE ${GRAPHQL_SERVER_PORT}
 

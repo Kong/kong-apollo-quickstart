@@ -4,10 +4,12 @@ SCRIPT=$(realpath "$0")
 SCRIPT_PATH=$(dirname "$SCRIPT")
 PID_PATH="${SCRIPT_PATH}/.pid"
 LOG_PATH="${SCRIPT_PATH}/run.log"
-SWAGGER_TO_GQL="${SCRIPT_PATH}/../node_modules/.bin/swagger-to-graphql"
-KONG_GQL_SERVER="${SCRIPT_PATH}/../src/kongql-server.js"
 
-GRAPHQL_SWAGGER_URL=${GRAPHQL_SWAGGER_URL:-https://petstore.swagger.io/v2/swagger.json}
+OAS_TO_GRAPHQL="${SCRIPT_PATH}/../node_modules/.bin/openapi-to-graphql"
+OAS_URI="${OAS_URI:-https://petstore.swagger.io/v2/swagger.json}"
+
+GRAPHQL_SERVER_PORT="3009"
+
 KONG_CONF_PATH=${KONG_CONF_PATH:-/etc/kong/kong.conf.default}
 KONG_DECLARATIVE_CONFIG=${KONG_DECLARATIVE_CONFIG:-}
 
@@ -20,8 +22,8 @@ function parse_args() {
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --swagger)
-        GRAPHQL_SWAGGER_URL=$2
+      --oas)
+        OAS_URI=$2
         ;;
       --kong-yml)
         KONG_DECLARATIVE_CONFIG=$2
@@ -57,27 +59,29 @@ cat << EOF
 EOF
 }
 
-function is_swagger_file_valid() {
-  "$SWAGGER_TO_GQL" "--swagger=${GRAPHQL_SWAGGER_URL}" > /dev/null
-  return $?
-}
-
-
 function start_server() {
   if is_server_running; then
     echo "server is already running"
     exit 0
   fi
 
-  if is_swagger_file_valid; then
-    export GRAPHQL_SWAGGER_URL
-    nohup "$KONG_GQL_SERVER" >> "${LOG_PATH}" &
-    echo "$!" > "$PID_PATH"
-  else
-    echo "error occured cannot start the server..."
-    cat "${LOG_PATH}"
-    exit 1
+  local flags=(
+    "$OAS_URI"
+    "-p $GRAPHQL_SERVER_PORT"
+  )
+
+  if [[ -n "$OAS_BASE_URL" ]]; then
+    flags+=("-u $OAS_BASE_URL")
   fi
+
+  nohup "$OAS_TO_GRAPHQL" ${flags[@]} &> "${LOG_PATH}" &
+  local pid=$!
+  echo "$pid" > "$PID_PATH"
+  for i in {0..4}; do
+    sleep 0.5
+    kill -0 $pid
+    [[ $? -ne 0 ]] && cat "${LOG_PATH}" && exit 1
+  done
 }
 
 

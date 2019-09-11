@@ -3,18 +3,9 @@
   "version": "1.0.0",
   "license": "MIT",
   "main": "index.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "bin": {
-    "kongql-server": "src/kongql-server.js"
-  },
   "dependencies": {
-    "apollo-server-express": "^2.8.1",
-    "babel-polyfill": "^6.23.0",
-    "express": "^4.15.3",
-    "express-graphql": "^0.9.0",
-    "graphql": "^14.4.1",
-    "swagger-to-graphql": "^1.9.0"
+    "apollo-server": "^2.9.3",
+    "js-yaml": "^3.13.1",
+    "openapi-to-graphql": "github:eskerda/openapi-to-graphql#master"
   }
 }
