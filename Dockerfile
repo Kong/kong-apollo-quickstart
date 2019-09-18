@@ -9,10 +9,7 @@ RUN npm install
 
 ADD bin bin
 
-# Can either be an url or a local file, ie:
-# ADD swagger.json swagger.json
-# ENV GRAPHQL_SWAGGER_URL="/usr/local/src/swagger.json"
-ENV OAS_URI="https://petstore.swagger.io/v2/swagger.json"
+ENV OAS_URI="https://swapi-with-ids.eskerda.now.sh/oas.yml"
 ENV GRAPHQL_SERVER_PORT="3009"
 
 EXPOSE ${GRAPHQL_SERVER_PORT}
