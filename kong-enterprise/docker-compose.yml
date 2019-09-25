@@ -1,0 +1,73 @@
+version: '3'
+
+services:
+  kong-database:
+    image: postgres:9.5
+    volumes:
+        - ./docker-pg-mult-db:/docker-entrypoint-initdb.d
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_USER=kong
+      - POSTGRES_MULTIPLE_DATABASES=collector,collector_test
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "kong"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+  redis:
+    image: redis:5.0-alpine
+    ports:
+        - 6379:6379
+
+  kong:
+    image: kong-docker-kong-enterprise-edition-internal-preview-docker.bintray.io/kong-enterprise-edition:1.3-alpine
+    command: sh -c "/usr/local/bin/kong migrations bootstrap && /usr/local/bin/kong start -c /kong.conf"
+    depends_on:
+     - kong-database
+    restart: always
+    volumes:
+      - './kong.conf:/kong.conf'
+    ports:
+      - 8000:8000
+      - 8001:8001
+      - 8002:8002
+      - 8003:8003
+      - 8004:8004
+      - 8443:8443
+      - 8444:8444
+      - 8445:8445
+    environment:
+      - KONG_PASSWORD=handyshake
+      - KONG_LOG_LEVEL=info
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl
+      - KONG_ADMIN_GUI_LISTEN=0.0.0.0:8002, 0.0.0.0:8445 ssl
+      - KONG_PORTAL=on
+      - KONG_VITALS=on
+      - KONG_PORTAL_GUI_URL=http://localhost:8003
+      - KONG_ADMIN_GUI_URL=http://localhost:8002
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=kong-database
+      - KONG_PG_USER=kong
+      - KONG_PG_PASSWORD=kong
+      - KONG_PG_DATABASE=collector
+      - KONG_SMTP_MOCK=true
+      - KONG_LICENSE_DATA=${KONG_LICENSE_DATA}
+      - KONG_ANONYMOUS_REPORTS=off
+      - KONG_PROXY_ACCESS_LOG=/dev/stdout
+      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+      - KONG_PROXY_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_ERROR_LOG=/dev/stderr
+      - KONG_PLUGINS=collector
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
