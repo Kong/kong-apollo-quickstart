@@ -27,13 +27,11 @@ services:
         - 6379:6379
 
   kong:
-    image: kong-docker-kong-enterprise-edition-internal-preview-docker.bintray.io/kong-enterprise-edition:1.3-alpine
-    command: sh -c "/usr/local/bin/kong migrations bootstrap && /usr/local/bin/kong start -c /kong.conf"
+    image: kong-enterprise-apollo
+    command: sh -c "/usr/local/bin/kong migrations bootstrap && /kongql/bin/kongql start --docker"
     depends_on:
      - kong-database
     restart: always
-    volumes:
-      - './kong.conf:/kong.conf'
     ports:
       - 8000:8000
       - 8001:8001
@@ -43,6 +41,7 @@ services:
       - 8443:8443
       - 8444:8444
       - 8445:8445
+      - 3009:3009
     environment:
       - KONG_PASSWORD=handyshake
       - KONG_LOG_LEVEL=info
@@ -64,7 +63,6 @@ services:
       - KONG_ADMIN_ACCESS_LOG=/dev/stdout
       - KONG_PROXY_ERROR_LOG=/dev/stderr
       - KONG_ADMIN_ERROR_LOG=/dev/stderr
-      - KONG_PLUGINS=collector
     logging:
       driver: "json-file"
       options:

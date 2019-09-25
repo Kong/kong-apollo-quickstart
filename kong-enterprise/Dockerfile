@@ -14,16 +14,15 @@ ENV GRAPHQL_SERVER_PORT="3009"
 
 EXPOSE ${GRAPHQL_SERVER_PORT}
 
-# Kong declarative config
-ADD kong.yml kong.yml
 
 # Some KONG settings
-ENV KONG_DATABASE="off"
+ENV KONG_DATABASE="postgres"
+ENV KONG_PG_HOST="kong-database"
 ENV KONG_PROXY_ACCESS_LOG="/dev/stdout"
 ENV KONG_ADMIN_ACCESS_LOG="/dev/stdout"
 ENV KONG_PROXY_ERROR_LOG="/dev/stderr"
 ENV KONG_ADMIN_ERROR_LOG="/dev/stderr"
 ENV KONG_ADMIN_LISTEN="0.0.0.0:8001, 0.0.0.0:8444 ssl"
-ENV KONG_DECLARATIVE_CONFIG="/kongql/kong.yml"
+
 
 CMD ["/kongql/bin/kongql", "start", "--docker"]
