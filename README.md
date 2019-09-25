@@ -1,6 +1,8 @@
 # Kong Apollo Server
 
-Kong Apollo server is a server that gives more power to your Open API specification and lets you to spin up your own GraphQL server using a Swagger file or your Graphql code.
+In an effort to bootstrap the value of the Apollo GraphQL Server and the Kong API Gateway - we've developed the kong-apollo-quickstart project. It leverages the querying power of GraphQL and the protection of a gateway, in a Docker container pre-configured to get you up and running quickly.
+
+Kong Apollo server is a server that gives more power to your Open API specification and lets you to spin up your own Apollo GraphQL server using a Swagger file or your Graphql code.
 
 
 # Running the Docker image
