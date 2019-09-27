@@ -45,7 +45,8 @@ docker run -it -d \
 
 Name | Type | Example
 --- | --- | ---
+OAS_URI | String | https://swapi-with-ids.eskerda.now.sh/oas.yml
 APOLLO_PLAYGROUND_ENABLED | Boolean | true
 APOLLO_INTROSPECTION_ENABLED | Booolean | true
 APOLLO_SERVER_PORT | Number | 3009
-OAS_URI | String | https://swapi-with-ids.eskerda.now.sh/oas.yml
+APOLLO_API_KEY | String | some-api-key

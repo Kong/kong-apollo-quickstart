@@ -33,7 +33,7 @@ const resolvers = {
 
 const engine = {
     // The Graph Manager API key
-    // apiKey: "YOUR_API_KEY_HERE",
+    apiKey: process.env.APOLLO_API_KEY,
 }
 
 
@@ -42,6 +42,6 @@ module.exports = {
     resolvers,
     engine,
     playground: process.env.APOLLO_PLAYGROUND_ENABLED? true: false,
-    introspection: !!process.env.APOLLO_INTROSPECTION_ENABLED? true: false,
+    introspection: process.env.APOLLO_INTROSPECTION_ENABLED? true: false,
     // context,
 }
