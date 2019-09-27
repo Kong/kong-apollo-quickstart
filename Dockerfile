@@ -14,6 +14,10 @@ ADD apollo.js apollo.js
 ADD src src
 ADD bin bin
 
+RUN chown -R kong /kongql
+
+USER kong
+
 # You can define an OpenAPI spec file as OAS_URI, this will autogenerate
 # a graphql server around it
 # ie: https://swapi-with-ids.eskerda.now.sh/oas.yml
