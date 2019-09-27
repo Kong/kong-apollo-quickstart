@@ -5,16 +5,11 @@ SCRIPT_PATH=$(dirname "$SCRIPT")
 PID_PATH="${SCRIPT_PATH}/.pid"
 LOG_PATH="${SCRIPT_PATH}/run.log"
 
-OAS_TO_GRAPHQL="${SCRIPT_PATH}/../node_modules/.bin/openapi-to-graphql"
-OAS_URI="${OAS_URI:-https://swapi-with-ids.eskerda.now.sh/oas.yml}"
-
-GRAPHQL_SERVER_PORT="3009"
-
 KONG_CONF_PATH=${KONG_CONF_PATH:-/etc/kong/kong.conf.default}
 KONG_DECLARATIVE_CONFIG=${KONG_DECLARATIVE_CONFIG:-}
+APOLLO_SERVER="${SCRIPT_PATH}/../src/app.js"
 
 unset DOCKER_START
-
 
 function parse_args() {
   ACTION=$1
@@ -22,9 +17,6 @@ function parse_args() {
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --oas)
-        OAS_URI=$2
-        ;;
       --kong-yml)
         KONG_DECLARATIVE_CONFIG=$2
         ;;
@@ -52,7 +44,6 @@ cat << EOF
     status      show status of the server
 
   Options:
-    --swagger   URL or PATH of swagger file
     --kong-yml  PATH to kong.yml
     --kong-conf PATH to kong.conf
 
@@ -65,16 +56,7 @@ function start_server() {
     exit 0
   fi
 
-  local flags=(
-    "$OAS_URI"
-    "-p $GRAPHQL_SERVER_PORT"
-  )
-
-  if [[ -n "$OAS_BASE_URL" ]]; then
-    flags+=("-u $OAS_BASE_URL")
-  fi
-
-  nohup "$OAS_TO_GRAPHQL" ${flags[@]} &> "${LOG_PATH}" &
+  nohup "$APOLLO_SERVER" &> "${LOG_PATH}" &
   local pid=$!
   echo "$pid" > "$PID_PATH"
   for i in {0..4}; do
