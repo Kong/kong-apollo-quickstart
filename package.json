@@ -1,0 +1,11 @@
+{
+  "name": "kong-graphql-server",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "index.js",
+  "dependencies": {
+    "apollo-server": "^2.9.3",
+    "js-yaml": "^3.13.1",
+    "openapi-to-graphql": "github:eskerda/openapi-to-graphql#master"
+  }
+}
